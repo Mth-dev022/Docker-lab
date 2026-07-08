@@ -5,3 +5,20 @@ scrape_configs:
   - job_name: 'docker-lab-api'
     static_configs:
       - targets: ['docker-lab_github:80']
+
+  - job_name: 'blackbox-altchat'
+    scrape_interval: 30s
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://api.altchat.com.br/health
+          - https://api.altchat.com.br/ready
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: docker-lab_blackbox:9115
